@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+
+# Virtual env
+.venv/
+
+# Env files
+.env
+
+# Playwright
+test-results/
+playwright-report/
+
+# Editor
+.vscode/
+.idea/
+
+# OS
+.DS_Store

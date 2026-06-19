@@ -1,0 +1,6 @@
+services:
+  worker:
+    build: .
+    restart: unless-stopped
+    environment:
+      BROKER_URL: ${BROKER_URL}
