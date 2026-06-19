@@ -40,8 +40,10 @@ def _post_webhook(webhook_url: str, payload: dict) -> None:
     name="tiktok.scrape_video",
     max_retries=2,
 )
-def scrape_video(self, request_id: str, url: str, webhook_url: str):
+def scrape_video(self, request_id: str, url: str, webhook_url: str, extras: dict | None = None):
     logger.info("[%s] Scraping %s", request_id, url)
+
+    base = {"request_id": request_id, "extras": extras or {}}
 
     try:
         raw = asyncio.run(TikTokScraper(headless=True).scrape(url))
@@ -51,16 +53,8 @@ def scrape_video(self, request_id: str, url: str, webhook_url: str):
         if self.request.retries < self.max_retries:
             raise self.retry(exc=exc, countdown=30 * (2 ** self.request.retries))
         logger.error("[%s] All retries exhausted", request_id)
-        _post_webhook(webhook_url, {
-            "request_id": request_id,
-            "status": "error",
-            "error": str(exc),
-        })
+        _post_webhook(webhook_url, {**base, "status": "error", "error": str(exc)})
         return
 
     logger.info("[%s] Done, posting to webhook", request_id)
-    _post_webhook(webhook_url, {
-        "request_id": request_id,
-        "status": "success",
-        "data": video,
-    })
+    _post_webhook(webhook_url, {**base, "status": "success", "data": video})

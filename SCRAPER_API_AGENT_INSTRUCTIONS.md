@@ -22,11 +22,12 @@ A single-endpoint REST API. No auth required for now.
 {
   "request_id": "any-string-identifier",
   "url": "https://www.tiktok.com/@user/video/123456",
-  "webhook_url": "https://your-service.com/webhook/result"
+  "webhook_url": "https://your-service.com/webhook/result",
+  "extras": { "campaign": "summer2026", "hashtags": ["#viral"] }
 }
 ```
 
-All three fields are required. Validate with Pydantic.
+`request_id`, `url`, `webhook_url` are required. `extras` is an optional free-form key-value object. Validate with Pydantic.
 
 **Response `202 Accepted`:**
 ```json
@@ -56,6 +57,7 @@ celery_app.send_task(
         "request_id": request_id,
         "url": url,
         "webhook_url": webhook_url,
+        "extras": extras or {},      # pass through, omit key if None
     },
     queue="tiktok_videos_scraper",   # must match exactly
 )
@@ -112,10 +114,10 @@ result to `webhook_url` with this shape:
 
 ```json
 // success
-{ "request_id": "...", "status": "success", "data": { ...video fields... } }
+{ "request_id": "...", "extras": {}, "status": "success", "data": { ...video fields... } }
 
 // failure after retries
-{ "request_id": "...", "status": "error", "error": "..." }
+{ "request_id": "...", "extras": {}, "status": "error", "error": "..." }
 ```
 
 The API does not need to handle the webhook — that is between the worker and
