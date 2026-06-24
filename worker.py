@@ -43,7 +43,7 @@ def _post_webhook(webhook_url: str, payload: dict) -> None:
     max_retries=2,
 )
 def scrape_video(self, request_id: str, url: str, webhook_url: str, extras: dict | None = None):
-    delay = random.uniform(1, 3)
+    delay = random.uniform(3, 5)
     logger.info("[%s] Waiting %.1fs before scraping", request_id, delay)
     time.sleep(delay)
 
