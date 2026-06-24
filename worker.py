@@ -1,6 +1,8 @@
 import asyncio
 import logging
 import os
+import random
+import time
 
 import httpx
 from celery import Celery
@@ -28,7 +30,7 @@ app.conf.update(
 
 def _post_webhook(webhook_url: str, payload: dict) -> None:
     try:
-        with httpx.Client(timeout=15) as client:
+        with httpx.Client(timeout=30) as client:
             resp = client.post(webhook_url, json=payload)
             resp.raise_for_status()
     except Exception as exc:
@@ -41,6 +43,10 @@ def _post_webhook(webhook_url: str, payload: dict) -> None:
     max_retries=2,
 )
 def scrape_video(self, request_id: str, url: str, webhook_url: str, extras: dict | None = None):
+    delay = random.uniform(1, 3)
+    logger.info("[%s] Waiting %.1fs before scraping", request_id, delay)
+    time.sleep(delay)
+
     logger.info("[%s] Scraping %s", request_id, url)
 
     base = {"request_id": request_id, "extras": extras or {}}
