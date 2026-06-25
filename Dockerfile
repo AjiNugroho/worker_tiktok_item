@@ -10,4 +10,4 @@ COPY scraper.py extractor.py worker.py ./
 
 ENV PYTHONUNBUFFERED=1
 
-CMD ["celery", "-A", "worker", "worker", "--loglevel=info", "--concurrency=1", "--pool=prefork", "--queues=tiktok_videos_scraper"]
+CMD ["celery", "-A", "worker", "worker", "--loglevel=info", "--concurrency=2", "--pool=prefork", "--queues=tiktok_videos_scraper"]
