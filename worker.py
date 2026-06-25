@@ -28,13 +28,20 @@ app.conf.update(
 )
 
 
-def _post_webhook(webhook_url: str, payload: dict) -> None:
-    try:
-        with httpx.Client(timeout=30) as client:
-            resp = client.post(webhook_url, json=payload)
-            resp.raise_for_status()
-    except Exception as exc:
-        logger.error("Webhook POST to %s failed: %s", webhook_url, exc)
+def _post_webhook(webhook_url: str, payload: dict, retries: int = 3, backoff: float = 2.0) -> None:
+    last_exc = None
+    for attempt in range(1, retries + 1):
+        try:
+            with httpx.Client(timeout=30) as client:
+                resp = client.post(webhook_url, json=payload)
+                resp.raise_for_status()
+            return
+        except Exception as exc:
+            last_exc = exc
+            logger.warning("Webhook POST attempt %d/%d failed: %s", attempt, retries, exc)
+            if attempt < retries:
+                time.sleep(backoff ** attempt)
+    logger.error("Webhook POST to %s gave up after %d attempts: %s", webhook_url, retries, last_exc)
 
 
 @app.task(
