@@ -1,10 +1,13 @@
-FROM mcr.microsoft.com/playwright/python:v1.60.0-noble
+ARG PLAYWRIGHT_VERSION=1.62.0
+FROM mcr.microsoft.com/playwright/python:v${PLAYWRIGHT_VERSION}-noble
+ARG PLAYWRIGHT_VERSION
 
 WORKDIR /app
 
-# Install Python deps (playwright + browsers already in base image)
+# Install Python deps. The base image ships the browsers only, not the playwright package,
+# so pin it to the image version — unpinned, pip pulls the latest and its browsers are missing.
 COPY pyproject.toml .
-RUN pip install --no-cache-dir celery httpx playwright-stealth
+RUN pip install --no-cache-dir "playwright==${PLAYWRIGHT_VERSION}" celery httpx playwright-stealth
 
 COPY scraper.py extractor.py worker.py ./
 

@@ -68,8 +68,9 @@ Webhook POST body:
 
 ## Playwright notes
 
-- Base Docker image: `mcr.microsoft.com/playwright/python:v1.60.0-noble` — browsers pre-installed, no `playwright install` in Dockerfile.
-- If upgrading Playwright, update **both** `pyproject.toml` and the Dockerfile `FROM` tag.
+- Base Docker image: `mcr.microsoft.com/playwright/python:v1.62.0-noble` — browsers pre-installed, no `playwright install` in Dockerfile.
+- The base image ships browsers only, **not** the `playwright` Python package. The package must be pinned to the image version, otherwise pip installs the latest and launch fails with "Looks like Playwright was just updated".
+- If upgrading Playwright, update **both** `pyproject.toml` (`playwright==X`) and `PLAYWRIGHT_VERSION` in the Dockerfile (drives the `FROM` tag and the pip pin), then `uv lock`.
 - `playwright-stealth` 2.x API: `Stealth().apply_stealth_async(page)` (not the old `stealth_async`).
 - `wait_for_selector` needs `state="attached"` for `<script>` tags (they are never "visible").
 
